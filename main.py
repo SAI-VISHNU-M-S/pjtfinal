@@ -89,22 +89,22 @@ async def analyze(request: Request, file: UploadFile = File(...), db: Session = 
     with open(in_p, "wb") as f:
         shutil.copyfileobj(file.file, f)
     
-    # MODELS A & C
+    # Run MediaPipe and Custom UCF101 Model
     angle, feedback = process_video(in_p, out_p, rep_p)
     
-    # MODEL B: Technical Inference
+    # Run OpenAI Generative Coaching
     try:
         res = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "You are a cricket expert. Provide a 1-sentence technical tip based on the metrics."},
+                {"role": "system", "content": "You are a cricket expert. Provide a technical tip based on metrics."},
                 {"role": "user", "content": f"Angle: {angle}, Feedback: {feedback}"}
             ]
         )
         feedback.append(res.choices[0].message.content)
     except:
-        # Removed "Biometric validation complete"
-        feedback.append("Technical audit verified by AI Engine.")
+        # Fallback message removed as requested
+        pass 
 
     new_report = AnalysisReport(
         user_id=int(user_id), 
