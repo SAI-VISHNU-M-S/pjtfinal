@@ -3,95 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BATTING FEEDBACK SYSTEM</title>
+    <title>CRICKET POSTURE SYSTEM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background: linear-gradient(rgba(2, 6, 23, 0.9), rgba(2, 6, 23, 0.9)), 
+            /* High visibility background */
+            background: linear-gradient(rgba(10, 10, 15, 0.4), rgba(10, 10, 15, 0.4)), 
                         url('https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=2000') no-repeat center center fixed;
             background-size: cover; font-family: 'Inter', sans-serif;
+            margin: 0; padding: 0;
         }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; }
-        .feedback-item { border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 12px; border-radius: 0 12px 12px 0; margin-bottom: 10px; }
+        .fixed-top-panel {
+            position: sticky; top: 0; z-index: 50; width: 100%;
+            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 1.5rem 1rem;
+        }
+        .glass { 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(6px); 
+            border: 1px solid rgba(255, 255, 255, 0.15); 
+            border-radius: 24px; 
+        }
+        .text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+
+        /* --- High-Impact Result Styles --- */
+        .feedback-item { 
+            border-left: 6px solid #ffffff; 
+            background: rgba(255, 255, 255, 0.08); 
+            padding: 20px; 
+            border-radius: 0 16px 16px 0; 
+            margin-bottom: 12px;
+        }
+        .stroke-result {
+            font-size: 28px; font-weight: 900; color: #60a5fa; /* Large Blue */
+            text-transform: uppercase; border-left-color: #60a5fa;
+            background: rgba(96, 165, 250, 0.1);
+        }
+        .metric-result {
+            font-size: 20px; font-weight: 700; color: #34d399; /* Medium Green */
+            border-left-color: #34d399;
+        }
+        .warning-result {
+            font-size: 16px; font-weight: 600; color: #fb7185; /* Small Red */
+            background: rgba(251, 113, 133, 0.05); border-left-color: #fb7185;
+        }
+        .stable-text { color: #e5e7eb; font-size: 14px; }
     </style>
 </head>
-<body class="min-h-screen p-4 text-white flex flex-col items-center">
+<body class="min-h-screen text-white flex flex-col items-center">
 
-    <div class="max-w-4xl w-full text-center">
-        <header class="mb-10">
-            <h1 class="text-5xl font-black italic tracking-tighter uppercase italic">POSTURE DETECTION <span class="text-blue-500">SYSTEM</span></h1>
-            <p class="text-gray-400 text-[10px] tracking-[0.4em] mt-2 uppercase">POSTURE BASED TECHNIQUE FEED BACK SYSTEM FOR CRICKET BATTING</p>
-        </header>
+    <div class="fixed-top-panel flex flex-col items-center">
+        <div class="max-w-6xl w-full flex justify-between items-center">
+            <div class="text-left">
+                <h1 class="text-2xl md:text-3xl font-black italic tracking-tighter uppercase text-shadow">
+                    POSTURE DETECTION <span class="text-blue-500">SYSTEM</span>
+                </h1>
+                <p class="text-[10px] md:text-xs text-blue-400 font-bold uppercase tracking-widest mt-1 text-shadow">
+                    POSTURE BASED TECHNIQUE FEEDBACK SYSTEM FOR CRICKET BATTING
+                </p>
+            </div>
+            {% if request.cookies.get('session_user') %}
+            <a href="/logout" class="bg-red-500/20 text-red-400 px-6 py-2 rounded-xl text-[10px] font-black border border-red-500/30">LOGOUT</a>
+            {% endif %}
+        </div>
+    </div>
 
+    <div class="max-w-4xl w-full p-8 text-center">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 text-left">
             <div class="glass p-8">
-                <h3 class="text-blue-400 font-black text-[12px] uppercase tracking-[0.2em] mb-6 text-center">Capabilities</h3>
-                <ul class="text-[12px] space-y-5 text-gray-300">
-                    <li><span class="text-white block font-bold mb-1 uppercase tracking-tighter">Skeletal Tracking</span> Identifying joints and tracking movement frame-by-frame.</li>
-                    <li><span class="text-white block font-bold mb-1 uppercase tracking-tighter">Generative Coaching</span> Personalized technical tips based on your metrics.</li>
-                    <li><span class="text-white block font-bold mb-1 uppercase tracking-tighter">Posture Corrections</span> Detecting deviations like collapsed arm posture.</li>
-                    <li><span class="text-white block font-bold mb-1 uppercase tracking-tighter">PDF Results</span> Professional biometric report for performance review.</li>
+                <h3 class="text-blue-400 font-black text-[12px] uppercase tracking-[0.2em] mb-6 text-center text-shadow">Main Capabilities</h3>
+                <ul class="text-[12px] space-y-5 text-gray-200">
+                    <li><span class="text-white block font-bold mb-1 uppercase tracking-tighter">Skeletal Tracking</span> Identifying joints frame-by-frame.</li>
+                    <li><span class="text-white block font-bold mb-1 uppercase tracking-tighter">Generative Coaching</span> Tips based on biometric metrics.</li>
+                    <li><span class="text-white block font-bold mb-1 uppercase tracking-tighter">Posture Correction</span> Detecting technical deviations.</li>
+                    <li><span class="text-white block font-bold mb-1 uppercase tracking-tighter">PDF Results</span> Professional performance reports.</li>
                 </ul>
             </div>
-            
-            <div class="glass p-8 flex flex-col justify-center">
-                <h3 class="text-emerald-400 font-black text-[12px] uppercase tracking-[0.2em] mb-6 text-center">Technical Specs</h3>
-                <ul class="text-[13px] space-y-4 text-gray-400 font-mono text-center">
-                    <li>⚡ UCF101 Trained Datasets</li>
+            <div class="glass p-8 flex flex-col justify-center text-center">
+                <h3 class="text-emerald-400 font-black text-[12px] uppercase tracking-[0.2em] mb-6 text-shadow">Technical Specs</h3>
+                <ul class="text-[13px] text-gray-200 font-mono space-y-4">
+                    <li>⚡ UCF101 Data</li>
                     <li>⚡ MediaPipe Skeletal Tracking</li>
                     <li>⚡ OpenAI Analysis</li>
                 </ul>
             </div>
         </div>
 
-        <div class="w-full flex justify-center">
-            
+        <div class="w-full flex justify-center pb-20">
             <div id="auth-view" class="w-full max-w-md {% if request.cookies.get('session_user') %}hidden{% endif %}">
-                <div class="glass p-8 shadow-2xl">
-                    <h2 id="auth-title" class="text-xl font-bold mb-6 text-blue-400 uppercase tracking-widest">Login</h2>
-                    <div id="auth-status" class="text-center mb-4 text-xs font-bold text-red-400 min-h-[1rem]"></div>
+                <div class="glass p-8 shadow-2xl text-center">
+                    <h2 id="auth-title" class="text-xl font-bold mb-6 text-blue-400 uppercase text-shadow">Login</h2>
+                    <div id="auth-status" class="text-center mb-4 text-xs font-bold text-red-400"></div>
                     <form onsubmit="handleAuth(event)" class="space-y-4 text-left">
-                        <input type="text" id="username" placeholder="Username" required class="w-full p-4 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-blue-500">
-                        <input type="email" id="email-field" placeholder="Email Address" class="hidden w-full p-4 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-blue-500">
-                        <input type="password" id="password" placeholder="Password" required class="w-full p-4 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-blue-500">
-                        <button type="submit" id="submit-btn" class="w-full bg-blue-600 p-4 rounded-xl font-black hover:bg-blue-700 transition-all shadow-lg active:scale-95">ENTER ADETAILS</button>
+                        <input type="text" id="username" placeholder="Username" required class="w-full p-4 rounded-xl bg-black/30 border border-white/10 outline-none">
+                        <input type="email" id="email-field" placeholder="Email" class="hidden w-full p-4 rounded-xl bg-black/30 border border-white/10 outline-none">
+                        <input type="password" id="password" placeholder="Password" required class="w-full p-4 rounded-xl bg-black/30 border border-white/10 outline-none">
+                        <button type="submit" id="submit-btn" class="w-full bg-blue-600 p-4 rounded-xl font-black">ENTER DETAILS</button>
                     </form>
-                    <div class="mt-6 text-[10px] text-gray-500 uppercase tracking-widest">
-                        <p id="toggle-wrapper">New Here? <button onclick="toggleAuth()" class="text-blue-400 font-bold hover:underline">Register Now</button></p>
-                    </div>
+                    <p class="mt-6 text-[10px] text-gray-400 uppercase">New? <button onclick="toggleAuth()" class="text-blue-400 font-bold">Register Now</button></p>
                 </div>
             </div>
 
             <div id="main-app" class="w-full space-y-8 {% if not request.cookies.get('session_user') %}hidden{% endif %}">
-                <div class="flex justify-center items-center gap-6">
-                    <h2 class="text-2xl font-black italic tracking-tighter uppercase">Training <span class="text-blue-500">Dashboard</span></h2>
-                    <a href="/logout" class="bg-red-500/20 text-red-400 px-4 py-2 rounded-xl text-[10px] font-black hover:bg-red-500/40 transition">LOGOUT ⏻</a>
-                </div>
-
                 <div id="upload-container" class="glass p-10 max-w-2xl mx-auto">
-                    <div id="drop-zone" onclick="document.getElementById('video-input').click()" class="border-2 border-dashed border-white/10 p-12 text-center rounded-2xl cursor-pointer hover:bg-white/5 transition mb-6">
-                        <p id="file-name" class="text-[10px] text-gray-500 uppercase font-black tracking-widest">Select Cricket Shot Video</p>
+                    <div onclick="document.getElementById('video-input').click()" class="border-2 border-dashed border-white/20 p-12 text-center rounded-2xl cursor-pointer hover:bg-white/5 transition mb-6">
+                        <p id="file-name" class="text-[10px] text-gray-300 uppercase font-black text-shadow">Select Shot Video</p>
                         <input type="file" id="video-input" class="hidden" accept="video/*" onchange="handleFileSelect(this)">
                     </div>
-                    <button id="analyze-btn" onclick="uploadVideo()" class="w-full bg-green-600 p-4 rounded-xl font-black hover:bg-green-700 transition-all active:scale-95 uppercase text-xs">Run Video Analysis</button>
+                    <button id="analyze-btn" onclick="uploadVideo()" class="w-full bg-green-600 p-4 rounded-xl font-black uppercase text-xs">Run Video Analysis</button>
                 </div>
 
                 <div id="results-panel" class="hidden space-y-8 max-w-4xl mx-auto">
                     <div class="glass overflow-hidden shadow-2xl">
                         <video id="result-video" controls class="w-full"></video>
                     </div>
-                    
                     <div class="flex flex-col gap-6">
-                        <button id="show-results-btn" onclick="toggleResults()" class="w-full bg-blue-600 p-4 rounded-xl font-black hover:bg-blue-700 transition-all uppercase text-xs">View Results</button>
-                        
+                        <button id="show-results-btn" onclick="toggleResults()" class="w-full bg-blue-600 p-4 rounded-xl font-black uppercase text-xs">View Results</button>
                         <div id="inference-results" class="hidden glass p-8 text-left">
-                            <h3 class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-6 text-center">Results</h3>
-                            <div id="biometric-list" class="space-y-2"></div>
+                            <h3 class="text-xl font-black text-blue-400 uppercase tracking-widest mb-8 text-center text-shadow">Technical Analysis Results</h3>
+                            <div id="biometric-list" class="space-y-4"></div>
                         </div>
-
                         <div class="flex gap-4">
-                            <a id="download-pdf" href="#" target="_blank" class="flex-1 bg-white text-blue-900 font-black p-4 rounded-xl text-center text-xs uppercase hover:bg-gray-200 transition">Download PDF Report</a>
-                            <button onclick="resetAnalysis()" class="flex-1 bg-blue-600/20 text-blue-400 border border-blue-500/30 font-black p-4 rounded-xl text-center text-xs uppercase hover:bg-blue-600/40 transition">Analyze Another Video</button>
+                            <a id="download-pdf" href="#" target="_blank" class="flex-1 bg-white text-blue-900 font-black p-4 rounded-xl text-center text-xs uppercase">Download PDF Report</a>
+                            <button onclick="location.reload()" class="flex-1 bg-blue-600/20 text-blue-400 border border-blue-500/30 font-black p-4 rounded-xl text-xs uppercase">Analyze Another Video</button>
                         </div>
                     </div>
                 </div>
@@ -105,48 +139,31 @@
             isLogin = !isLogin;
             document.getElementById('auth-title').innerText = isLogin ? "Login" : "Register";
             document.getElementById('email-field').classList.toggle('hidden', isLogin);
-            document.getElementById('toggle-wrapper').innerHTML = isLogin ? 
-                'New? <button onclick="toggleAuth()" class="text-blue-400 font-bold hover:underline">Register Now</button>' :
-                'Member? <button onclick="toggleAuth()" class="text-blue-400 font-bold hover:underline">Login</button>';
         }
 
         async function handleAuth(e) {
             e.preventDefault();
-            const payload = { 
-                username: document.getElementById('username').value, 
-                password: document.getElementById('password').value,
-                email: document.getElementById('email-field').value 
-            };
             const res = await fetch(`/${isLogin ? 'login' : 'register'}`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
+                body: JSON.stringify({username: document.getElementById('username').value, password: document.getElementById('password').value, email: document.getElementById('email-field').value})
             });
             if(res.ok && isLogin) location.reload();
             else if(res.ok) { alert("Registered! Login now."); toggleAuth(); }
-            else document.getElementById('auth-status').innerText = "❌Error";
+            else document.getElementById('auth-status').innerText = "❌ Auth Error";
         }
 
         function handleFileSelect(input) { if (input.files[0]) document.getElementById('file-name').innerText = input.files[0].name; }
         
         function toggleResults() {
             const resDiv = document.getElementById('inference-results');
-            const btn = document.getElementById('show-results-btn');
-            const isHidden = resDiv.classList.contains('hidden');
             resDiv.classList.toggle('hidden');
-            btn.innerText = isHidden ? "Hide Results" : "View Results";
-        }
-
-        function resetAnalysis() {
-            document.getElementById('results-panel').classList.add('hidden');
-            document.getElementById('inference-results').classList.add('hidden');
-            document.getElementById('upload-container').classList.remove('hidden');
-            document.getElementById('video-input').value = "";
+            document.getElementById('show-results-btn').innerText = resDiv.classList.contains('hidden') ? "View Results" : "Hide Results";
         }
 
         async function uploadVideo() {
             const fileInput = document.getElementById('video-input');
             if (!fileInput.files[0]) return;
-            document.getElementById('analyze-btn').innerText = "CHECKING...";
+            document.getElementById('analyze-btn').innerText = "PROCESSING...";
             const fd = new FormData(); fd.append('file', fileInput.files[0]);
             
             try {
@@ -157,9 +174,17 @@
                 const v = document.getElementById('result-video');
                 v.src = data.video_url; v.load();
                 document.getElementById('download-pdf').href = data.report_url;
-                document.getElementById('biometric-list').innerHTML = data.feedback.map(i => `<div class="feedback-item text-[11px]">${i}</div>`).join('');
-            } catch (err) { alert("Analysis failed on port 8003"); }
-            finally { document.getElementById('analyze-btn').innerText = "Run The Video Analysis"; }
+                
+                // --- Updated Dynamic Scaling Logic ---
+                document.getElementById('biometric-list').innerHTML = data.feedback.map(item => {
+                    let styleClass = "stable-text";
+                    if (item.includes("Stroke:")) styleClass = "stroke-result";
+                    else if (item.includes("Avg Extension:") || item.includes("Frames:")) styleClass = "metric-result";
+                    else if (item.includes("Correction:")) styleClass = "warning-result";
+                    return `<div class="feedback-item ${styleClass} text-shadow">${item}</div>`;
+                }).join('');
+            } catch (err) { alert("Analysis failed"); }
+            finally { document.getElementById('analyze-btn').innerText = "Run Video Analysis"; }
         }
     </script>
 </body>

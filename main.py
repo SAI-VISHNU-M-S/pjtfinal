@@ -45,7 +45,7 @@ async def home(request: Request):
 async def register(data: dict, db: Session = Depends(get_db)):
     if db.query(User).filter(User.username == data['username']).first():
         raise HTTPException(status_code=400, detail="Username taken")
-    # Restored email handling
+    # Store user with email
     new_user = User(username=data['username'], email=data.get('email'), password_hash=data['password'])
     db.add(new_user)
     db.commit()
@@ -68,12 +68,18 @@ async def logout(response: Response):
 # --- CORE APP ---
 @app.get("/dashboard", response_class=HTMLResponse)
 async def get_dashboard(request: Request, db: Session = Depends(get_db)):
+    # 1. Get user ID from session
     user_id = request.cookies.get("session_user")
     if not user_id or user_id == "None":
         return RedirectResponse(url="/", status_code=303)
     
+    # 2. Pull reports only (Welcome/Username logic removed)
     reports = db.query(AnalysisReport).filter(AnalysisReport.user_id == int(user_id)).all()
-    return templates.TemplateResponse("index.html", {"request": request, "reports": reports})
+    
+    return templates.TemplateResponse("index.html", {
+        "request": request, 
+        "reports": reports
+    })
 
 @app.post("/analyze")
 async def analyze(request: Request, file: UploadFile = File(...), db: Session = Depends(get_db)):
@@ -89,21 +95,20 @@ async def analyze(request: Request, file: UploadFile = File(...), db: Session = 
     with open(in_p, "wb") as f:
         shutil.copyfileobj(file.file, f)
     
-    # Run MediaPipe and Custom UCF101 Model
+    # Models A & C
     angle, feedback = process_video(in_p, out_p, rep_p)
     
-    # Run OpenAI Generative Coaching
+    # Model B: OpenAI technical advice
     try:
         res = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "You are a cricket expert. Provide a technical tip based on metrics."},
+                {"role": "system", "content": "You are a cricket expert. Provide a 1-sentence technical tip."},
                 {"role": "user", "content": f"Angle: {angle}, Feedback: {feedback}"}
             ]
         )
         feedback.append(res.choices[0].message.content)
     except:
-        # Fallback message removed as requested
         pass 
 
     new_report = AnalysisReport(
