@@ -5,62 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRICKET POSTURE SYSTEM</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body {
-            /* High visibility background */
-            background: linear-gradient(rgba(10, 10, 15, 0.4), rgba(10, 10, 15, 0.4)), 
+            background: linear-gradient(rgba(10, 10, 15, 0.6), rgba(10, 10, 15, 0.6)), 
                         url('https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=2000') no-repeat center center fixed;
             background-size: cover; font-family: 'Inter', sans-serif;
-            margin: 0; padding: 0;
+            margin: 0; padding: 0; overflow-x: hidden;
         }
         .fixed-top-panel {
             position: sticky; top: 0; z-index: 50; width: 100%;
-            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 1.5rem 1rem;
         }
         .glass { 
-            background: rgba(255, 255, 255, 0.03); 
-            backdrop-filter: blur(6px); 
-            border: 1px solid rgba(255, 255, 255, 0.15); 
-            border-radius: 24px; 
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(8px); 
+            border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 28px; 
+            transition: all 0.3s ease;
         }
-        .text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-
-        /* --- High-Impact Result Styles --- */
-        .feedback-item { 
-            border-left: 6px solid #ffffff; 
-            background: rgba(255, 255, 255, 0.08); 
-            padding: 20px; 
-            border-radius: 0 16px 16px 0; 
-            margin-bottom: 12px;
+        .no-jump:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(96, 165, 250, 0.6);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.2);
         }
-        .stroke-result {
-            font-size: 28px; font-weight: 900; color: #60a5fa; /* Large Blue */
-            text-transform: uppercase; border-left-color: #60a5fa;
-            background: rgba(96, 165, 250, 0.1);
+        .text-shadow { text-shadow: 0 2px 10px rgba(0,0,0,0.7); }
+        #auth-view { position: fixed; right: 2rem; top: 120px; width: 380px; z-index: 100; }
+        .content-wrapper { padding-right: 420px; transition: all 0.3s; }
+        .logged-in .content-wrapper { padding-right: 0; }
+        @media (max-width: 1200px) {
+            #auth-view { position: relative; right: auto; top: auto; width: 100%; max-width: 450px; margin: 2rem auto; }
+            .content-wrapper { padding-right: 0 !important; }
         }
-        .metric-result {
-            font-size: 20px; font-weight: 700; color: #34d399; /* Medium Green */
-            border-left-color: #34d399;
+        .feedback-item { border-left: 6px solid #60a5fa; background: rgba(255, 255, 255, 0.05); padding: 18px; border-radius: 0 16px 16px 0; margin-bottom: 12px; }
+        
+        .tooltip-container .tooltip-text {
+            visibility: hidden; opacity: 0; transition: visibility 0s, opacity 0.3s linear;
         }
-        .warning-result {
-            font-size: 16px; font-weight: 600; color: #fb7185; /* Small Red */
-            background: rgba(251, 113, 133, 0.05); border-left-color: #fb7185;
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible; opacity: 1;
         }
-        .stable-text { color: #e5e7eb; font-size: 14px; }
     </style>
 </head>
-<body class="min-h-screen text-white flex flex-col items-center">
+<body class="min-h-screen text-white flex flex-col items-center {% if request.cookies.get('session_user') %}logged-in{% endif %}">
 
     <div class="fixed-top-panel flex flex-col items-center">
-        <div class="max-w-6xl w-full flex justify-between items-center">
+        <div class="max-w-7xl w-full flex justify-between items-center px-6">
             <div class="text-left">
-                <h1 class="text-2xl md:text-3xl font-black italic tracking-tighter uppercase text-shadow">
-                    POSTURE DETECTION <span class="text-blue-500">SYSTEM</span>
-                </h1>
-                <p class="text-[10px] md:text-xs text-blue-400 font-bold uppercase tracking-widest mt-1 text-shadow">
-                    POSTURE BASED TECHNIQUE FEEDBACK SYSTEM FOR CRICKET BATTING
-                </p>
+                <h1 class="text-2xl md:text-3xl font-black italic tracking-tighter uppercase text-shadow">POSTURE DETECTION <span class="text-blue-500">SYSTEM</span></h1>
+                <p class="text-[10px] md:text-xs text-blue-400 font-bold uppercase tracking-[0.3em] mt-1 text-shadow">BIOMECHANICAL TECHNIQUE FEEDBACK ENGINE</p>
             </div>
             {% if request.cookies.get('session_user') %}
             <a href="/logout" class="bg-red-500/20 text-red-400 px-6 py-2 rounded-xl text-[10px] font-black border border-red-500/30">LOGOUT</a>
@@ -68,77 +61,156 @@
         </div>
     </div>
 
-    <div class="max-w-4xl w-full p-8 text-center">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 text-left">
-            <div class="glass p-8">
-                <h3 class="text-blue-400 font-black text-[12px] uppercase tracking-[0.2em] mb-6 text-center text-shadow">Main Capabilities</h3>
-                <ul class="text-[12px] space-y-5 text-gray-200">
-                    <li><span class="text-white block font-bold mb-1 uppercase tracking-tighter">Skeletal Tracking</span> Identifying joints frame-by-frame.</li>
-                    <li><span class="text-white block font-bold mb-1 uppercase tracking-tighter">Generative Coaching</span> Tips based on biometric metrics.</li>
-                    <li><span class="text-white block font-bold mb-1 uppercase tracking-tighter">Posture Correction</span> Detecting technical deviations.</li>
-                    <li><span class="text-white block font-bold mb-1 uppercase tracking-tighter">PDF Results</span> Professional performance reports.</li>
-                </ul>
+    <div class="max-w-7xl w-full p-6 content-wrapper">
+        <div class="max-w-4xl space-y-12">
+            
+            {% if not request.cookies.get('session_user') %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+                <div class="glass p-8 cursor-default hover:scale-105">
+                    <h3 class="text-blue-400 font-black text-xl uppercase tracking-[0.2em] mb-8 text-shadow border-b border-blue-500/20 pb-4 text-center">Main Capabilities</h3>
+                    <ul class="text-base space-y-6 text-gray-200">
+                        <li><span class="text-white block font-bold text-lg mb-1 uppercase tracking-tighter">Skeletal Tracking</span> High-fidelity joint mapping.</li>
+                        <li><span class="text-white block font-bold text-lg mb-1 uppercase tracking-tighter">Generative Coaching</span> AI-driven technique advice.</li>
+                        <li><span class="text-white block font-bold text-lg mb-1 uppercase tracking-tighter">Posture Correction</span> Automated deviation detection.</li>
+                        <li><span class="text-white block font-bold text-lg mb-1 uppercase tracking-tighter">PDF Results</span> Performance analytical audits.</li>
+                    </ul>
+                </div>
+                <div class="glass p-8 flex flex-col justify-center text-center cursor-default hover:scale-105">
+                    <h3 class="text-emerald-400 font-black text-xl uppercase tracking-[0.2em] mb-8 text-shadow border-b border-emerald-500/20 pb-4">Technical Specs</h3>
+                    <ul class="text-lg text-gray-200 font-mono space-y-8">
+                        <li class="flex flex-col items-center">
+                            <span class="text-yellow-400 text-xl font-bold">⚡ UCF101</span>
+                            <p class="text-[12px] text-gray-300 font-sans italic mt-2">Trained on <span class="text-white font-bold">167 clips</span> for classification.</p>
+                        </li>
+                        <li class="flex flex-col items-center">
+                            <span class="text-yellow-400 text-xl font-bold">⚡ MediaPipe</span>
+                            <p class="text-[12px] text-gray-300 font-sans italic mt-2">Real-time <span class="text-white font-bold">33 joints</span> (33x3 = 99 dims).</p>
+                        </li>
+                        <li class="flex flex-col items-center">
+                            <span class="text-yellow-400 text-xl font-bold">⚡ OpenAI</span>
+                            <p class="text-[12px] text-gray-300 font-sans italic mt-2">Synthesizing <span class="text-white font-bold"> data</span> into feedback.</p>
+                        </li>
+                    </ul>
+                </div>
             </div>
-            <div class="glass p-8 flex flex-col justify-center text-center">
-                <h3 class="text-emerald-400 font-black text-[12px] uppercase tracking-[0.2em] mb-6 text-shadow">Technical Specs</h3>
-                <ul class="text-[13px] text-gray-200 font-mono space-y-4">
-                    <li>⚡ UCF101 Data</li>
-                    <li>⚡ MediaPipe Skeletal Tracking</li>
-                    <li>⚡ OpenAI Analysis</li>
-                </ul>
+            {% endif %}
+
+            <div class="glass p-8 cursor-default">
+                <h3 class="text-blue-400 font-black text-xl uppercase tracking-[0.2em] mb-6 text-shadow border-b border-blue-500/20 pb-4 text-center">Elbow Extension Classification Matrix</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 text-center">
+                    
+                    <div class="bg-black/30 p-4 rounded-xl border border-white/5 hover:border-blue-500/50 transition flex flex-col justify-center">
+                        <span class="text-yellow-400 font-black text-xl block mb-2">> 165°</span>
+                        <span class="text-white font-bold block mb-1 uppercase text-xs tracking-wider">Lofted Drive / Sixer</span>
+                        <span class="text-[9px] text-gray-400 uppercase tracking-widest">Maximum Extension</span>
+                    </div>
+                    
+                    <div class="bg-black/30 p-4 rounded-xl border border-white/5 hover:border-blue-500/50 transition flex flex-col justify-center">
+                        <span class="text-emerald-400 font-black text-xl block mb-2">155° - 165°</span>
+                        <span class="text-white font-bold block mb-1 uppercase text-xs tracking-wider">Cover / Straight Drive</span>
+                        <span class="text-[9px] text-gray-400 uppercase tracking-widest">Full Extension</span>
+                    </div>
+
+                    <div class="bg-black/30 p-4 rounded-xl border border-white/5 hover:border-blue-500/50 transition flex flex-col justify-center">
+                        <span class="text-blue-400 font-black text-xl block mb-2">140° - 154°</span>
+                        <span class="text-white font-bold block mb-1 uppercase text-xs tracking-wider">Defensive Stroke</span>
+                        <span class="text-[9px] text-gray-400 uppercase tracking-widest">Controlled Elbow</span>
+                    </div>
+
+                    <div class="bg-black/30 p-4 rounded-xl border border-white/5 hover:border-blue-500/50 transition flex flex-col justify-center">
+                        <span class="text-purple-400 font-black text-xl block mb-2">125° - 139°</span>
+                        <span class="text-white font-bold block mb-1 uppercase text-xs tracking-wider">Square Cut / Late Cut</span>
+                        <span class="text-[9px] text-gray-400 uppercase tracking-widest">Wrist Work</span>
+                    </div>
+
+                    <div class="bg-black/30 p-4 rounded-xl border border-white/5 hover:border-blue-500/50 transition flex flex-col justify-center">
+                        <span class="text-pink-400 font-black text-xl block mb-2">110° - 124°</span>
+                        <span class="text-white font-bold block mb-1 uppercase text-xs tracking-wider">Pull / Hook Shot</span>
+                        <span class="text-[9px] text-gray-400 uppercase tracking-widest">High-to-Low</span>
+                    </div>
+
+                    <div class="bg-black/30 p-4 rounded-xl border border-white/5 hover:border-blue-500/50 transition flex flex-col justify-center">
+                        <span class="text-orange-400 font-black text-xl block mb-2">90° - 109°</span>
+                        <span class="text-white font-bold block mb-1 uppercase text-xs tracking-wider">Close-Body Block</span>
+                        <span class="text-[9px] text-gray-400 uppercase tracking-widest">Compact Defense</span>
+                    </div>
+
+                    <div class="bg-black/30 p-4 rounded-xl border border-red-500/30 hover:border-red-500/80 transition flex flex-col justify-center lg:col-span-2">
+                        <span class="text-red-400 font-black text-xl block mb-2">< 90°</span>
+                        <span class="text-white font-bold block mb-1 uppercase text-xs tracking-wider">Under-Edge / Late Reaction</span>
+                        <span class="text-[9px] text-gray-400 uppercase tracking-widest">Cramped Posture</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="main-app" class="w-full {% if not request.cookies.get('session_user') %}hidden{% else %}block{% endif %} pb-20">
+                <div id="upload-container" class="glass no-jump p-12 max-w-2xl mx-auto border-2 border-white/5 text-center">
+                    <div onclick="document.getElementById('video-input').click()" class="border-2 border-dashed border-white/20 p-16 rounded-2xl cursor-pointer hover:bg-white/5 transition mb-8 group">
+                        <p id="file-name" class="text-[24px] text-gray-400 uppercase font-black text-shadow group-hover:text-blue-400 transition">UPLOAD VIDEO</p>
+                        <input type="file" id="video-input" class="hidden" accept="video/*" onchange="handleFileSelect(this)">
+                    </div>
+                    <button id="analyze-btn" onclick="uploadVideo()" class="w-full bg-green-600 hover:bg-green-500 p-5 rounded-xl font-black uppercase text-sm tracking-[0.2em] transition shadow-2xl">Initialize...</button>
+                </div>
+
+                <div id="results-panel" class="hidden space-y-8 mt-12">
+                    <div class="flex justify-center mb-4">
+                        <div class="tooltip-container relative cursor-help inline-block text-center glass px-8 py-4 border-yellow-400/30">
+                            <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Detected Shot</p>
+                            <h2 id="shot-name" class="text-3xl font-black text-yellow-400 uppercase tracking-widest text-shadow"></h2>
+                            <p id="shot-desc" class="text-sm text-gray-300 font-bold uppercase tracking-widest mt-1"></p>
+                            
+                            <div class="tooltip-text absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 bg-blue-600 border border-blue-400 text-white text-sm font-bold py-2 px-4 rounded-xl shadow-2xl whitespace-nowrap z-10">
+                                <span id="angle-type" class="text-yellow-300">Elbow</span> Angle: <span id="shot-angle"></span>°
+                                <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-blue-600"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <video id="result-video" controls class="w-full glass"></video>
+                    <div id="inference-results" class="glass p-10 text-left border-l-8 border-blue-500"><div id="biometric-list" class="space-y-4"></div></div>
+                    
+                    <div class="flex flex-col md:flex-row gap-4 mt-8">
+                        <button onclick="resetAnalysis()" class="flex-1 bg-white/10 hover:bg-white/20 p-4 rounded-xl font-black uppercase text-xs tracking-[0.2em] border border-white/20 transition text-gray-300 hover:text-white">
+                            Analyze Another Video
+                        </button>
+                        <button onclick="downloadPDF()" class="flex-1 bg-red-600/80 hover:bg-red-500 p-4 rounded-xl font-black uppercase text-xs tracking-[0.2em] border border-red-500/50 transition shadow-lg flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Download PDF Report
+                        </button>
+                    </div>
+
+                </div>
             </div>
         </div>
 
-        <div class="w-full flex justify-center pb-20">
-            <div id="auth-view" class="w-full max-w-md {% if request.cookies.get('session_user') %}hidden{% endif %}">
-                <div class="glass p-8 shadow-2xl text-center">
-                    <h2 id="auth-title" class="text-xl font-bold mb-6 text-blue-400 uppercase text-shadow">Login</h2>
-                    <div id="auth-status" class="text-center mb-4 text-xs font-bold text-red-400"></div>
-                    <form onsubmit="handleAuth(event)" class="space-y-4 text-left">
-                        <input type="text" id="username" placeholder="Username" required class="w-full p-4 rounded-xl bg-black/30 border border-white/10 outline-none">
-                        <input type="email" id="email-field" placeholder="Email" class="hidden w-full p-4 rounded-xl bg-black/30 border border-white/10 outline-none">
-                        <input type="password" id="password" placeholder="Password" required class="w-full p-4 rounded-xl bg-black/30 border border-white/10 outline-none">
-                        <button type="submit" id="submit-btn" class="w-full bg-blue-600 p-4 rounded-xl font-black">ENTER DETAILS</button>
-                    </form>
-                    <p class="mt-6 text-[10px] text-gray-400 uppercase">New? <button onclick="toggleAuth()" class="text-blue-400 font-bold">Register Now</button></p>
-                </div>
-            </div>
-
-            <div id="main-app" class="w-full space-y-8 {% if not request.cookies.get('session_user') %}hidden{% endif %}">
-                <div id="upload-container" class="glass p-10 max-w-2xl mx-auto">
-                    <div onclick="document.getElementById('video-input').click()" class="border-2 border-dashed border-white/20 p-12 text-center rounded-2xl cursor-pointer hover:bg-white/5 transition mb-6">
-                        <p id="file-name" class="text-[10px] text-gray-300 uppercase font-black text-shadow">Select Shot Video</p>
-                        <input type="file" id="video-input" class="hidden" accept="video/*" onchange="handleFileSelect(this)">
-                    </div>
-                    <button id="analyze-btn" onclick="uploadVideo()" class="w-full bg-green-600 p-4 rounded-xl font-black uppercase text-xs">Run Video Analysis</button>
-                </div>
-
-                <div id="results-panel" class="hidden space-y-8 max-w-4xl mx-auto">
-                    <div class="glass overflow-hidden shadow-2xl">
-                        <video id="result-video" controls class="w-full"></video>
-                    </div>
-                    <div class="flex flex-col gap-6">
-                        <button id="show-results-btn" onclick="toggleResults()" class="w-full bg-blue-600 p-4 rounded-xl font-black uppercase text-xs">View Results</button>
-                        <div id="inference-results" class="hidden glass p-8 text-left">
-                            <h3 class="text-xl font-black text-blue-400 uppercase tracking-widest mb-8 text-center text-shadow">Technical Analysis Results</h3>
-                            <div id="biometric-list" class="space-y-4"></div>
-                        </div>
-                        <div class="flex gap-4">
-                            <a id="download-pdf" href="#" target="_blank" class="flex-1 bg-white text-blue-900 font-black p-4 rounded-xl text-center text-xs uppercase">Download PDF Report</a>
-                            <button onclick="location.reload()" class="flex-1 bg-blue-600/20 text-blue-400 border border-blue-500/30 font-black p-4 rounded-xl text-xs uppercase">Analyze Another Video</button>
-                        </div>
-                    </div>
-                </div>
+        <div id="auth-view" class="{% if request.cookies.get('session_user') %}hidden{% endif %}">
+            <div class="glass p-10 shadow-2xl text-center flex flex-col items-center">
+                <h2 id="auth-title" class="text-2xl font-black text-blue-400 uppercase tracking-widest mb-8">Login</h2>
+                <form onsubmit="handleAuth(event)" class="w-full space-y-5">
+                    <div class="text-left w-full"><label class="text-[9px] font-bold text-gray-500 uppercase ml-1">Username</label><input type="text" id="username" required class="w-full p-4 rounded-xl bg-black/50 border border-white/10 outline-none focus:border-blue-500 transition"></div>
+                    <div id="email-group" class="hidden text-left w-full"><label class="text-[9px] font-bold text-gray-500 uppercase ml-1">Mail-Id</label><input type="email" id="email-field" class="w-full p-4 rounded-xl bg-black/50 border border-white/10 outline-none focus:border-blue-500 transition"></div>
+                    <div class="text-left w-full"><label class="text-[9px] font-bold text-gray-500 uppercase ml-1">Password</label><input type="password" id="password" required class="w-full p-4 rounded-xl bg-black/50 border border-white/10 outline-none focus:border-blue-500 transition"></div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 p-5 rounded-xl font-black text-xs tracking-[0.3em] transition mt-4">AUTHENTICATE</button>
+                </form>
+                <p class="mt-8 text-[10px] text-gray-400 uppercase text-center w-full"><span id="auth-hint">New User?</span> <button onclick="toggleAuth()" id="auth-toggle-btn" class="text-blue-400 font-bold hover:text-white underline ml-1 uppercase">Register</button></p>
             </div>
         </div>
     </div>
 
     <script>
         let isLogin = true;
+        
+        // Global object to store CLEANED data for the PDF
+        let globalAnalysisData = {
+            shotType: "N/A", strokeDesc: "N/A", angle: "N/A", frames: "N/A", feedback: []
+        };
+
         function toggleAuth() {
             isLogin = !isLogin;
             document.getElementById('auth-title').innerText = isLogin ? "Login" : "Register";
-            document.getElementById('email-field').classList.toggle('hidden', isLogin);
+            document.getElementById('email-group').classList.toggle('hidden', isLogin);
+            document.getElementById('auth-toggle-btn').innerText = isLogin ? "Register" : "Login";
         }
 
         async function handleAuth(e) {
@@ -147,44 +219,172 @@
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({username: document.getElementById('username').value, password: document.getElementById('password').value, email: document.getElementById('email-field').value})
             });
-            if(res.ok && isLogin) location.reload();
-            else if(res.ok) { alert("Registered! Login now."); toggleAuth(); }
-            else document.getElementById('auth-status').innerText = "❌ Auth Error";
+            if(res.ok) location.reload();
+            else alert("Error in Authentication");
         }
 
         function handleFileSelect(input) { if (input.files[0]) document.getElementById('file-name').innerText = input.files[0].name; }
-        
-        function toggleResults() {
-            const resDiv = document.getElementById('inference-results');
-            resDiv.classList.toggle('hidden');
-            document.getElementById('show-results-btn').innerText = resDiv.classList.contains('hidden') ? "View Results" : "Hide Results";
-        }
 
         async function uploadVideo() {
             const fileInput = document.getElementById('video-input');
-            if (!fileInput.files[0]) return;
-            document.getElementById('analyze-btn').innerText = "PROCESSING...";
+            if (!fileInput.files[0]) return alert("Please select a video file!");
+            const btn = document.getElementById('analyze-btn');
+            btn.innerText = "CALCULATING..."; btn.disabled = true;
             const fd = new FormData(); fd.append('file', fileInput.files[0]);
             
             try {
                 const res = await fetch('/analyze', { method: 'POST', body: fd });
                 const data = await res.json();
+                
+                // --- BULLETPROOF PARSER: STRIPS OUT ALL BULLET POINTS ---
+                let extractedShot = "Unclassified Stroke";
+                let extractedDesc = "";
+                let extractedAngle = "N/A";
+                let extractedFrames = "Analyzed full sequence";
+                let actualCorrections = [];
+
+                if (data.feedback && Array.isArray(data.feedback)) {
+                    data.feedback.forEach(rawItem => {
+                        // Strips out any bullet points, hyphens, or stars from the string
+                        let item = rawItem.replace(/^[\u2022\-\*]\s*/, '').trim();
+
+                        if (item.startsWith("Stroke:")) {
+                            let fullStroke = item.replace("Stroke:", "").trim();
+                            if (fullStroke.includes("(")) {
+                                let parts = fullStroke.split("(");
+                                extractedShot = parts[0].trim();
+                                extractedDesc = "(" + parts[1].trim();
+                            } else {
+                                extractedShot = fullStroke;
+                            }
+                        } else if (item.startsWith("Avg Extension:")) {
+                            extractedAngle = item.replace("Avg Extension:", "").replace("°", "").trim();
+                        } else if (item.startsWith("Frames:")) {
+                            extractedFrames = item.replace("Frames:", "").trim();
+                        } else {
+                            // Only real feedback gets saved to actualCorrections
+                            actualCorrections.push(item);
+                        }
+                    });
+                }
+
+                // Save cleaned data for the PDF
+                globalAnalysisData = {
+                    shotType: extractedShot,
+                    strokeDesc: extractedDesc.replace(/[()]/g, ''),
+                    angle: extractedAngle,
+                    frames: extractedFrames,
+                    feedback: actualCorrections
+                };
+                
+                // UI Updates
                 document.getElementById('upload-container').classList.add('hidden');
                 document.getElementById('results-panel').classList.remove('hidden');
-                const v = document.getElementById('result-video');
-                v.src = data.video_url; v.load();
-                document.getElementById('download-pdf').href = data.report_url;
                 
-                // --- Updated Dynamic Scaling Logic ---
-                document.getElementById('biometric-list').innerHTML = data.feedback.map(item => {
-                    let styleClass = "stable-text";
-                    if (item.includes("Stroke:")) styleClass = "stroke-result";
-                    else if (item.includes("Avg Extension:") || item.includes("Frames:")) styleClass = "metric-result";
-                    else if (item.includes("Correction:")) styleClass = "warning-result";
-                    return `<div class="feedback-item ${styleClass} text-shadow">${item}</div>`;
-                }).join('');
-            } catch (err) { alert("Analysis failed"); }
-            finally { document.getElementById('analyze-btn').innerText = "Run Video Analysis"; }
+                const v = document.getElementById('result-video'); v.src = data.video_url; v.load();
+
+                // Populate UI elements
+                document.getElementById('shot-name').innerText = extractedShot;
+                document.getElementById('shot-desc').innerText = extractedDesc;
+                document.getElementById('angle-type').innerText = data.angle_type || "Elbow"; 
+                document.getElementById('shot-angle').innerText = extractedAngle;
+                
+                // Output clean corrections to UI
+                document.getElementById('biometric-list').innerHTML = actualCorrections.map(item => `<div class="feedback-item">${item}</div>`).join('');
+                
+            } catch (err) { 
+                console.error(err);
+                alert("Analysis failed on server."); 
+            } finally { 
+                btn.innerText = "Initialize Analysis"; btn.disabled = false; 
+            }
+        }
+
+        // --- RESET UI FOR ANOTHER VIDEO ---
+        function resetAnalysis() {
+            document.getElementById('results-panel').classList.add('hidden');
+            document.getElementById('upload-container').classList.remove('hidden');
+            document.getElementById('video-input').value = '';
+            document.getElementById('file-name').innerText = 'UPLOAD MP4 VIDEO';
+            
+            const v = document.getElementById('result-video');
+            v.pause();
+            v.removeAttribute('src');
+            v.load();
+        }
+
+        // --- DOWNLOAD FULL REPORT PDF ---
+        function downloadPDF() {
+            if (!window.jspdf) {
+                alert("PDF library is still loading. Please try again in a second.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const d = globalAnalysisData;
+            
+            // PDF Styling and Layout
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(22);
+            doc.setTextColor(41, 128, 185);
+            doc.text("Biomechanical Cricket Posture Report", 20, 20);
+
+            doc.setLineWidth(0.5);
+            doc.setDrawColor(200, 200, 200);
+            doc.line(20, 25, 190, 25);
+
+            doc.setFontSize(12);
+            doc.setTextColor(50, 50, 50);
+            
+            let yPos = 40;
+            doc.setFont("helvetica", "bold");
+            doc.text("Type of Shot:", 20, yPos);
+            doc.setFont("helvetica", "normal");
+            doc.text(d.shotType, 60, yPos);
+            
+            yPos += 10;
+            doc.setFont("helvetica", "bold");
+            doc.text("Stroke:", 20, yPos);
+            doc.setFont("helvetica", "normal");
+            doc.text(d.strokeDesc, 60, yPos);
+
+            yPos += 10;
+            doc.setFont("helvetica", "bold");
+            doc.text("Avg Extension:", 20, yPos);
+            doc.setFont("helvetica", "normal");
+            doc.text(`${d.angle}°`, 60, yPos);
+
+            yPos += 10;
+            doc.setFont("helvetica", "bold");
+            doc.text("Frames:", 20, yPos);
+            doc.setFont("helvetica", "normal");
+            doc.text(String(d.frames), 60, yPos);
+
+            yPos += 20;
+            doc.setFont("helvetica", "bold");
+            doc.text("Correction & Technique Feedback:", 20, yPos);
+            doc.setFont("helvetica", "normal");
+            yPos += 10;
+
+            if (d.feedback && d.feedback.length > 0) {
+                d.feedback.forEach((item) => {
+                    const cleanItem = item.replace("Correction:", "").trim(); 
+                    const splitText = doc.splitTextToSize(`• ${cleanItem}`, 170);
+                    doc.text(splitText, 25, yPos);
+                    yPos += (splitText.length * 7); 
+                });
+            } else {
+                doc.text("No specific corrections flagged.", 25, yPos);
+            }
+
+            doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
+            doc.text("Generated by Cricket Posture System Engine", 20, 280);
+
+            // DIRECT DOWNLOAD LOGIC
+            const safeShotName = d.shotType.replace(/[^a-zA-Z0-9]/g, '_');
+            doc.save(`Cricket_Analysis_${safeShotName}.pdf`);
         }
     </script>
 </body>
